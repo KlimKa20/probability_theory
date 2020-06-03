@@ -1,29 +1,41 @@
 import lab1
 import numpy as np
 import math
-def Prison(n):
+def Pearson(n):
     Y = lab1.create_sample(n, 6)
     sort = sorted(Y)
     y = lambda x: (13 / 10) - (1 / (10 * x))
-    M = int(2 * np.log10(n))
-    v = int(100 / M)
-    x = [sort[0]]
-    x.append((sort[0] + sort[v - 1]) / 2)
-    temp = [(sort[(i * v) - 1] + sort[((i + 1) * v) - 1]) / 2 for i in range(1, M - 1)]
-    for i in temp:
-        x.append(i)
-    x = [sort[i] for i in range(0, M + 1)]
-    p = [(y(x[i + 1]) - y(x[i])) for i in range(0, M)]
-    ni = M / n
-    return sum([((ni - n * p[i]) ** 2) / (n * p[i]) for i in range(0, M)])
+    M = int(4 * np.log10(n))
+    v = math.ceil(len(Y) / M)
 
-def Kolmogorova(n):
+    pi = [v / n for _ in range(1, M)]
+    pi.append((n - sum(pi * n)) / n)
+    A = [sort[0]]
+    B = []
+    temp = [(sort[(i * v) + 1] + sort[i * v]) / 2 for i in range(1, M)]
+    for i in temp:
+        A.append(i)
+        B.append(i)
+    B.append(sort[-1])
+
+    p = [(y(B[i]) - y(A[i])) for i in range(0, M)]
+    print("k = ",M-2-1)
+
+    if abs(1-sum(pi))<0.01:
+        print("Критерий проходит")
+    else:
+        print("Критерий не проходит")
+
+
+    return n*sum([((pi[i] - p[i]) ** 2) / p[i] for i in range(0, M)])
+
+def Kolmogorov(n):
     Y = lab1.create_sample(n, 6)
     sort = sorted(Y)
     y = lambda x: (13 / 10) - (1 / (10 * x))
     xe,ye=lab1.empir(sort,False)
-    yt=[y(x) for x in xe]
-    different=max([math.fabs(ye[i]-yt[i])for i in range(0,len(xe))])
+    yt=[y(x) for x in xe[1:]]
+    different=max([math.fabs(ye[i]-yt[i])for i in range(1,len(xe),2)])
     return math.sqrt(n)*different
 
 def Mizes(n):
@@ -31,16 +43,16 @@ def Mizes(n):
     sort = sorted(Y)
     y = lambda x: (13 / 10) - (1 / (10 * x))
     xe, ye = lab1.empir(sort, False)
-    yt = [y(x) for x in xe]
-    delta=sum([(ye[i]-yt[i])**2for i in range(0,len(xe))])
+    yt = [y(x) for x in xe[1:]]
+    delta=sum([(ye[i]-yt[i])**2for i in range(1,len(xe),2)])
     return (1/(12*n))+delta
 if __name__=="__main__":
-    p=Prison(200)
-    if  p<13.28:
-        print("подчиняются равномерному распределению при уровне значимости a='0.1'")
+    p=Pearson(200)
+    if  p<16.81:
+        print("подчиняются  распределению при уровне значимости a = 0,01")
     else:
-        print("не подчиняются равномерному распределению при уровне значимости a='0.1'")
-    if Kolmogorova(30)<1.62:
+        print("не подчиняются распределению при уровне значимости a = 0,01")
+    if Kolmogorov(30)<1.62:
         print("подчиняются равномерному распределению при уровне значимости a = 0,05")
     else:
         print("не подчиняются равномерному распределению при уровне значимости a = 0,05")
