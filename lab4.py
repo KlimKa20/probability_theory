@@ -14,12 +14,12 @@ def first_task(n, plt):
     print("Точечное мат. ожидание {0}".format(m))
     D = (sum([(i - m) ** 2 for i in Y]) / (n - 1))
     print("Точечная дисперсия {0}".format(D))
-    tt = sts.t(n)
+    tt = sts.t(n-1)
     arr = tt.rvs(1000000)
     deltam1 = sts.mstats.mquantiles(arr, prob=0.9) * math.sqrt(D / (n - 1))  # 0.9
     deltam2 = sts.mstats.mquantiles(arr, prob=0.94) * math.sqrt(D / (n - 1))  # 0.95
     deltam3 = sts.mstats.mquantiles(arr, prob=0.98) * math.sqrt(D / (n - 1))  # 0.98
-    deltam4 = sts.mstats.mquantiles(arr, prob=0.99) * math.sqrt(D / (n - 1))  # 0.99
+    deltam4 = sts.mstats.mquantiles(arr, prob=0.999) * math.sqrt(D / (n - 1))  # 0.99
     print("интервал мат ожидания:{0}....{1}".format(m - deltam1, m + deltam1))
     print("интервал мат ожидания:{0}....{1}".format(m - deltam2, m + deltam2))
     print("интервал мат ожидания:{0}....{1}".format(m - deltam3, m + deltam3))
@@ -31,11 +31,13 @@ def first_task(n, plt):
 def first_task_theory(n, plt):
     print("\n")
     print("выборка {}".format(n))
-    y = lambda x: (13 * x / 10) + (1 / 10)
+    y = lambda x: 1 / (10 * (x ** 2))*x
     m = integrate.quad(y, 1 / 13, 1 / 3)[0]
-    y1 = lambda x: ((x - m) ** 2) * ((13 / 10) + (1 / 10 * x))
+    print("мат. ожидание{0}".format(m))
+    y1 = lambda x: ((x - m) ** 2) * (1 / (10 * (x ** 2)))
     D = integrate.quad(y1, 1 / 13, 1 / 3)[0]
-    tt = sts.t(n)
+    print("Дисперсия{0}".format(D))
+    tt = sts.t(n-1)
     arr = tt.rvs(1000000)
     deltam1 = sts.mstats.mquantiles(arr, prob=0.9) * math.sqrt(D / (n - 1))  # 0.9
     deltam2 = sts.mstats.mquantiles(arr, prob=0.94) * math.sqrt(D / (n - 1))  # 0.95
@@ -53,7 +55,7 @@ def second_task(n, plt):
     print("выборка {}".format(n))
     Y = lab1.create_sample(n, 6)
     m = sum(Y) / n
-    print(m)
+    print("мат. ожидание{0}".format(m))
     D = (sum([(i - m) ** 2 for i in Y]) / (n - 1))
     print("Дисперсия{0}".format(D))
     tt = sts.chi2(n - 1)
@@ -61,9 +63,9 @@ def second_task(n, plt):
     deltam1 = sts.mstats.mquantiles(arr, prob=[0.025, 0.975])  # 0.95
     deltam2 = sts.mstats.mquantiles(arr, prob=[0.01, 0.99])  # 0.98
     deltam3 = sts.mstats.mquantiles(arr, prob=[0.005, 0.995])  # 0.99
-    interval = [(D - (n - 1) * D / deltam1[1], D + (n - 1) * D / deltam1[0]),
-                (D - (n - 1) * D / deltam2[1], D + (n - 1) * D / deltam2[0]),
-                (D - (n - 1) * D / deltam3[1], D + (n - 1) * D / deltam3[0])]
+    interval = [(n * D / deltam1[1], n * D / deltam1[0]),
+                (n * D / deltam2[1], n * D / deltam2[0]),
+                (n * D / deltam3[1], n * D / deltam3[0])]
     print("интервал дисперсии:{0}....{1}".format(interval[0][0], interval[0][1]))
     print("интервал дисперсии:{0}....{1}".format(interval[1][0], interval[1][1]))
     print("интервал дисперсии:{0}....{1}".format(interval[2][0], interval[2][1]))
@@ -75,20 +77,21 @@ def second_task(n, plt):
 def second_task_theory(n, plt):
     print("\n")
     print("выборка {}".format(n))
-    y = lambda x: (13 * x / 10) + (1 / (10 * x))
+    y = lambda x: 1 / (10 * (x ** 2))*x
     m = integrate.quad(y, 1 / 13, 1 / 3)[0]
-    y1 = lambda x: ((x - m) ** 2) * (13 / 10) + (1 / 10 * (x ** 2))
-    D = integrate.quad(y1, 1 / 13, 1 / 3)[0]
+    Y = lab1.create_sample(n, 6)
+    D = (sum([(i - m) ** 2 for i in Y]) / n)
     print("Мат ожидание{}".format(m))
+    print("Дисперсия{0}".format(D))
     tt = sts.chi2(n - 1)
     arr = tt.rvs(1000000)
 
     deltam1 = sts.mstats.mquantiles(arr, prob=[0.025, 0.975])  # 0.95
     deltam2 = sts.mstats.mquantiles(arr, prob=[0.01, 0.99])  # 0.98
     deltam3 = sts.mstats.mquantiles(arr, prob=[0.005, 0.995])  # 0.99
-    interval = [(D - (n - 1) * D / deltam1[1], D + (n - 1) * D / deltam1[0]),
-                (D - (n - 1) * D / deltam2[1], D + (n - 1) * D / deltam2[0]),
-                (D - (n - 1) * D / deltam3[1], D + (n - 1) * D / deltam3[0])]
+    interval = [(n * D / deltam1[1], n * D / deltam1[0]),
+                (n * D / deltam2[1], n * D / deltam2[0]),
+                (n * D / deltam3[1], n * D / deltam3[0])]
     print("интервал дисперсии:{0}....{1}".format(interval[0][0], interval[0][1]))
     print("интервал дисперсии:{0}....{1}".format(interval[1][0], interval[1][1]))
     print("интервал дисперсии:{0}....{1}".format(interval[2][0], interval[2][1]))
@@ -98,22 +101,22 @@ def second_task_theory(n, plt):
 
 
 if __name__ == "__main__":
-    first_task(20,plt)
-    first_task(30, plt)
-    first_task(50, plt)
-    first_task(70, plt)
-    first_task(100, plt)
-    first_task(150, plt)
-    plt.legend()
-    plt.show()
-    first_task_theory(20, plt)
-    first_task_theory(30, plt)
-    first_task_theory(50, plt)
-    first_task_theory(70, plt)
-    first_task_theory(100, plt)
-    first_task_theory(150, plt)
-    plt.legend()
-    plt.show()
+    # first_task(20,plt)
+    # first_task(30, plt)
+    # first_task(50, plt)
+    # first_task(70, plt)
+    # first_task(100, plt)
+    # first_task(150, plt)
+    # plt.legend()
+    # plt.show()
+    # first_task_theory(20, plt)
+    # first_task_theory(30, plt)
+    # first_task_theory(50, plt)
+    # first_task_theory(70, plt)
+    # first_task_theory(100, plt)
+    # first_task_theory(150, plt)
+    # plt.legend()
+    # plt.show()
 
     second_task(20, plt)
     second_task(30, plt)
